@@ -19,6 +19,13 @@ var Game = function() {
         "lives_img": "images/lives.png"
     };
 
+    this.state = {
+        "finished": false,
+        "count": 0,
+        "toggle": "white",
+        "msg":"GAME OVER"
+    };
+
 };
 
 Game.prototype.update_score = function( points ) {
@@ -31,6 +38,16 @@ Game.prototype.update_lives = function( lives ) {
     this.statistics.lives += lives;
 }
 
+Game.prototype.update = function() {
+    if( ! this.statistics.lives || this.statistics.score >= 5 ) {
+        this.state.finished = true;
+
+        game.state.msg = "GAME OVER";
+        if(  this.statistics.score >= 5 )
+            game.state.msg = "CONGRATULATIONS";   
+    }
+};
+
 Game.prototype.render = function() {
     ctx.fillStyle = "yellow";
     ctx.font = "38px serif";
@@ -42,7 +59,48 @@ Game.prototype.render = function() {
     ctx.textAlign="left";
     ctx.drawImage(Resources.get(this.statistics.lives_img), this.board.width-60 , this.board.height-70);  
     ctx.fillText((this.statistics.lives).toString(), this.board.width-20, this.board.height-30);
+
+    if( this.state.finished ) {           
+
+            ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
+            ctx.fillRect(0, game.board.height / 2 - 100, game.board.width, 200);
+
+
+            ctx.font = "40px serif";
+            ctx.textAlign="center";
+
+            ctx.strokeStyle = "white";
+            ctx.lineWidth = 4;
+            ctx.strokeText(game.state.msg, this.board.width / 2, this.board.height / 2);
+            
+            ctx.fillStyle = "red"; 
+            ctx.fillText(game.state.msg, this.board.width / 2, this.board.height / 2);
+            
+            
+            game.state.count++;
+            if( game.state.count > 30) {   
+                game.state.count = 0;
+                if(game.state.toggle =="white")
+                    game.state.toggle = 'black';
+                else
+                    game.state.toggle = "white";
+            }
+
+            ctx.font = "28px serif";
+            ctx.textAlign="center";
+
+            ctx.fillStyle = game.state.toggle;
+            ctx.fillText("Press enter to restart", this.board.width / 2, this.board.height / 2 + 40);
+    }
 };
+
+Game.prototype.reset = function() {
+    this.statistics.score = 0;
+    this.statistics.lives = 3;
+    game.state.finished = false;
+    game.state.restarted = false;
+};
+
 
 
 /*************** Enemy Object ***************/
@@ -127,6 +185,21 @@ Player.prototype.handleInput = function( key ) {
         case 40:
             this.dy = 1;
             break;
+        case 13:
+            if( game.state.finished ) {
+                game.reset();
+                
+                allEnemies.forEach(function(enemy) {
+                    enemy.initialize();
+                });
+                player.initialize();
+            }
+            break;
+    }
+
+    if( game.state.finished ) {
+        this.dx = 0;
+        this.dy = 0;
     }
 };
 
