@@ -61,6 +61,19 @@ Player.prototype.update = function(dt) {
 
     this.dx = 0;
     this.dy = 0;
+
+    //Collision
+    for(var i = 0; i < allEnemies.length ; i++) {
+        if( Math.abs(this.x * game.board.box_width - allEnemies[i].x ) < 50 && (this.y == allEnemies[i].y) ) {
+            player.initialize();
+            break;
+        }
+    }
+
+    //Water
+    if( this.y == 0) {
+        player.initialize();
+    }
 };
 
 Player.prototype.render = function() {
