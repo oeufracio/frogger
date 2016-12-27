@@ -12,8 +12,37 @@ var Game = function() {
         "min_speed": 200,   // Min speed for bugs
         "max_speed": 500    // Max speed for bugs
     };
+
+    this.statistics = {
+        "score": 0,
+        "lives": 3,
+        "lives_img": "images/lives.png"
+    };
+
 };
 
+Game.prototype.update_score = function( points ) {
+    // points can be either positive or negative
+    this.statistics.score += points;
+}
+
+Game.prototype.update_lives = function( lives ) {
+    // lives can be either positive or negative
+    this.statistics.lives += lives;
+}
+
+Game.prototype.render = function() {
+    ctx.fillStyle = "yellow";
+    ctx.font = "38px serif";
+    ctx.textAlign="left";
+    ctx.fillText("Score: " + (this.statistics.score).toString(), 10, this.board.box_height+20);
+
+    ctx.fillStyle = "red";
+    ctx.font = "28px serif";
+    ctx.textAlign="left";
+    ctx.drawImage(Resources.get(this.statistics.lives_img), this.board.width-60 , this.board.height-70);  
+    ctx.fillText((this.statistics.lives).toString(), this.board.width-20, this.board.height-30);
+};
 
 
 /*************** Enemy Object ***************/
@@ -65,6 +94,7 @@ Player.prototype.update = function(dt) {
     //Collision
     for(var i = 0; i < allEnemies.length ; i++) {
         if( Math.abs(this.x * game.board.box_width - allEnemies[i].x ) < 50 && (this.y == allEnemies[i].y) ) {
+            game.update_lives( -1 );
             player.initialize();
             break;
         }
@@ -72,6 +102,7 @@ Player.prototype.update = function(dt) {
 
     //Water
     if( this.y == 0) {
+        game.update_score( 1 );
         player.initialize();
     }
 };
