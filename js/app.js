@@ -145,15 +145,27 @@ Game.prototype.reset = function() {
     this.heart.on_board = false;
 };
 
-
+/*************** Character Object ***************/
+var Character = function( sprite, x, y ) {
+    this.sprite = sprite;
+    this.x = x;
+    this.y = y;
+};
 
 /*************** Enemy Object ***************/
 var Enemy = function() {
-    this.initialize();
+    Character.call(this,
+                   'images/enemy-bug.png',
+                   0,
+                   1 + Math.floor( game.board.BLOCKS * Math.random() ) );
+    this.speed = game.board.MIN_SPEED + Math.floor( (game.board.MAX_SPEED - game.board.MIN_SPEED) * Math.random() );
 };
 
+Enemy.prototype = Object.create( Character.prototype );
+
+Enemy.prototype.constructor = Enemy;
+
 Enemy.prototype.initialize = function() {
-    this.sprite = 'images/enemy-bug.png';
     this.x = 0;
     this.y = 1 + Math.floor( game.board.BLOCKS * Math.random() );
     this.speed = game.board.MIN_SPEED + Math.floor( (game.board.MAX_SPEED - game.board.MIN_SPEED) * Math.random() );
@@ -168,6 +180,7 @@ Enemy.prototype.update = function(dt) {
 };
 
 Enemy.prototype.render = function() {
+    // This render method is slightly different for Player: the x coordinate does not need to be multiplied by BOX-WIDTH
     ctx.drawImage( Resources.get( this.sprite), this.x, this.y * game.board.BOX_HEIGHT );
 };
 
@@ -175,11 +188,19 @@ Enemy.prototype.render = function() {
 
 /*************** Player Object ***************/
 var Player = function() {
-    this.initialize();
+    Character.call(this,
+                   "images/char-boy.png",
+                   2,
+                   game.board.ROWS - 1);
+    this.dx = 0;
+    this.dy = 0;
 };
 
+Player.prototype = Object.create(Character.prototype);
+
+Player.prototype.constructor = Player;
+
 Player.prototype.initialize = function() {
-    this.sprite = "images/char-boy.png";
     this.x = 2;
     this.y = game.board.ROWS - 1;
     this.dx = 0;
@@ -222,6 +243,7 @@ Player.prototype.update = function(dt) {
 };
 
 Player.prototype.render = function() {
+        // This render method is slightly different than the  Enemy.render method
     ctx.drawImage(Resources.get(this.sprite), this.x * game.board.BOX_WIDTH , this.y * game.board.BOX_HEIGHT );  
 };
 
